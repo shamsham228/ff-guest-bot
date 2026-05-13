@@ -11,3 +11,4 @@ grpcio-tools
 aiofiles
 grpcio
 protobuf
+httpx
