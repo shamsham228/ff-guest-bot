@@ -6,5 +6,8 @@ uvicorn
 jinja2
 pycryptodome
 protobuf
-google-protobuf
+googleapis-common-protos
+grpcio-tools
 aiofiles
+grpcio
+protobuf
