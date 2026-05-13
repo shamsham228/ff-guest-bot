@@ -1,0 +1,10 @@
+python-telegram-bot
+httpx[socks]
+python-dotenv
+fastapi
+uvicorn
+jinja2
+pycryptodome
+protobuf
+google-protobuf
+aiofiles

@@ -1,0 +1,10 @@
+# Add your proxies here, one per line
+# Supports HTTP and SOCKS5
+# Format examples:
+# http://ip:port
+# http://user:pass@ip:port
+# socks5://ip:port
+# socks5://user:pass@ip:port
+#
+# Leave empty to use direct connection (no proxy)
+# Free proxies from: https://free-proxy-list.net
