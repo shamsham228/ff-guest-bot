@@ -17,30 +17,29 @@ DEFAULT_STATS = {
     "start_time": "",
     "last_created": "",
     "recent_accounts": [],
-    "hourly_counts": {},
     "daily_counts": {}
 }
 
 
 def load_stats() -> dict:
     if not os.path.exists(STATS_FILE):
-        stats = DEFAULT_STATS.copy()
-        stats["start_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        save_stats(stats)
-        return stats
+        s = DEFAULT_STATS.copy()
+        s["start_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        save_stats(s)
+        return s
     with _lock:
         try:
             with open(STATS_FILE, "r") as f:
                 data = json.load(f)
-                # Fix missing start_time
-                if not data.get("start_time"):
-                    data["start_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    save_stats(data)
+                # Make sure all keys exist
+                for k, v in DEFAULT_STATS.items():
+                    if k not in data:
+                        data[k] = v
                 return data
         except Exception:
-            stats = DEFAULT_STATS.copy()
-            stats["start_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            return stats
+            s = DEFAULT_STATS.copy()
+            s["start_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            return s
 
 
 def save_stats(stats: dict) -> None:
@@ -65,8 +64,6 @@ def record_success(uid: str, token_generated: bool) -> None:
         "token": token_generated
     })
     stats["recent_accounts"] = stats["recent_accounts"][:20]
-    hour_key = datetime.now().strftime("%Y-%m-%d %H:00")
-    stats["hourly_counts"][hour_key] = stats["hourly_counts"].get(hour_key, 0) + 1
     day_key = datetime.now().strftime("%Y-%m-%d")
     stats["daily_counts"][day_key] = stats["daily_counts"].get(day_key, 0) + 1
     save_stats(stats)
@@ -105,16 +102,21 @@ def get_today_count() -> int:
     return stats["daily_counts"].get(day_key, 0)
 
 
+def get_total_accounts() -> int:
+    try:
+        with open("guests_converted.json", "r") as f:
+            return len(json.load(f))
+    except Exception:
+        return 0
+
+
 def get_uptime() -> str:
     try:
         stats = load_stats()
-        start_str = stats.get("start_time", "")
-        if not start_str:
-            return "Just started"
-        start = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+        start = datetime.strptime(stats["start_time"], "%Y-%m-%d %H:%M:%S")
         diff = datetime.now() - start
         hours = int(diff.total_seconds() // 3600)
         mins = int((diff.total_seconds() % 3600) // 60)
         return f"{hours}h {mins}m"
     except Exception:
-        return "Just started"
+        return "Unknown"
